@@ -8,82 +8,74 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi&family=Noto+Sans+Gurmukhi&family=Baloo+Paaji+2&family=Mukta+Mahee&family=Langar&family=Tiro+Gurmukhi&family=Anek+Gurmukhi&family=Changa&display=swap" rel="stylesheet">
 
 <style>
+@font-face{font-family:"Raavi";src:url("raavi.ttf");}
+@font-face{font-family:"Prabhki";src:url("Prabhki.ttf");}
+@font-face{font-family:"Gurblip";src:url("Gurblip.ttf");}
+
 body{
   margin:0;
-  font-family: Arial, sans-serif;
-  background:linear-gradient(135deg,#ede9ff,#ffffff);
+  font-family:sans-serif;
+  background:linear-gradient(135deg,#e6ddff,#ffffff);
   text-align:center;
 }
-h1{
-  background:linear-gradient(to right,#5a2ca0,#8b5cf6);
-  color:white;
-  padding:12px;
-  margin:0;
-  font-size:20px;
-}
-.container{
-  background:white;
-  margin:8px;
-  padding:8px;
-  border-radius:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
-}
-textarea{
-  width:95%;
-  height:60px;
-  font-size:18px;
-  margin:4px 0;
-  border-radius:10px;
-  border:1px solid #ccc;
-  padding:6px;
-}
-select,input,button{
-  padding:6px;
-  margin:3px;
-  border-radius:10px;
-  border:none;
+header{
   background:#5a2ca0;
   color:white;
-  font-size:13px;
+  padding:12px;
+  font-size:20px;
 }
-input[type=color]{padding:2px;height:30px;}
+.controls{padding:10px;}
+textarea{
+  width:95%;
+  height:70px;
+  font-size:18px;
+  border-radius:8px;
+  border:2px solid #5a2ca0;
+  padding:8px;
+}
+select,input,button{
+  margin:4px;
+  padding:7px 10px;
+  border-radius:8px;
+  border:none;
+  font-size:14px;
+}
+button{background:#5a2ca0;color:white;}
 canvas{
-  border:2px solid #333;
-  margin-top:6px;
+  margin-top:10px;
   border-radius:12px;
-  background:#fff;
-  touch-action:none;
+  background:white;
 }
-.toolbtn{background:#8b5cf6;}
-.active{background:#16a34a !important;}
 </style>
 </head>
 
 <body>
-<h1>Punjabi Calligraphy App</h1>
 
-<div class="container">
+<header>Punjabi Calligraphy App</header>
 
-<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea>
+<div class="controls">
+
+<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea><br>
 
 <select id="fontSelect">
+  <option value="Raavi">Raavi</option>
+  <option value="Prabhki">Prabhki</option>
+  <option value="Gurblip">Gurblip</option>
   <option value="Noto Serif Gurmukhi">Noto Serif Gurmukhi</option>
   <option value="Noto Sans Gurmukhi">Noto Sans Gurmukhi</option>
   <option value="Baloo Paaji 2">Baloo Paaji 2</option>
   <option value="Mukta Mahee">Mukta Mahee</option>
-  <option value="Langar">Langar (hand style)</option>
+  <option value="Langar">Langar</option>
   <option value="Tiro Gurmukhi">Tiro Gurmukhi</option>
   <option value="Anek Gurmukhi">Anek Gurmukhi</option>
-  <option value="Changa">Changa (rounded)</option>
-</select><br>
+  <option value="Changa">Changa</option>
+</select>
+
+<input type="color" id="textColor" value="#000000">
+<input type="color" id="bgColor" value="#ffffff"><br>
 
 Font Size:
-<input type="range" id="fontSize" min="20" max="150" value="50"><br>
-
-Text Color:
-<input type="color" id="textColor" value="#000000">
-Background:
-<input type="color" id="bgColor" value="#ffffff"><br>
+<input type="range" id="fontSize" min="20" max="150" value="60"><br>
 
 Word Art:
 <select id="artStyle">
@@ -93,46 +85,67 @@ Word Art:
   <option value="curve">Curve</option>
 </select><br>
 
+<button onclick="toggleBold()">Bold</button>
+<button onclick="toggleUnderline()">Underline</button><br>
+
+Border Color:
+<input type="color" id="borderColor" value="#000000">
+
+Border Size:
+<input type="range" id="borderSize" min="0" max="20" value="4">
+
+<select id="borderStyle">
+  <option value="single">Single</option>
+  <option value="double">Double</option>
+  <option value="triple">Triple</option>
+</select><br>
+
 <button onclick="drawText()">Convert</button>
 <button onclick="clearCanvas()">Delete</button>
 <button onclick="saveImage()">Save</button>
 <button onclick="shareImage()">Share</button><br>
 
-<button class="toolbtn active" id="textTool" onclick="setMode('text')">Text Tool</button>
-<button class="toolbtn" id="drawTool" onclick="setMode('draw')">✍️ Draw Tool</button>
-
-<canvas id="canvas" width="350" height="350"></canvas>
+<button onclick="zoomIn()">Zoom +</button>
+<button onclick="zoomOut()">Zoom -</button>
 
 </div>
 
+<canvas id="canvas" width="350" height="350"></canvas>
+
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-let scale=1, startDist=0;
-let mode="text";
-let drawing=false;
+let scale=1;
+let bold=false;
+let underline=false;
 
-textColor.addEventListener("input", drawText);
-bgColor.addEventListener("input", drawText);
-fontSize.addEventListener("input", drawText);
-fontSelect.addEventListener("change", drawText);
-artStyle.addEventListener("change", drawText);
-
-function setMode(m){
-  mode=m;
-  textTool.classList.remove("active");
-  drawTool.classList.remove("active");
-  if(m==="text") textTool.classList.add("active");
-  if(m==="draw") drawTool.classList.add("active");
+function drawBorders(size,color,style){
+  ctx.strokeStyle=color;
+  ctx.lineWidth=size;
+  if(style==="single"){
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+  }
+  if(style==="double"){
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+    ctx.strokeRect(size*2,size*2,canvas.width-size*4,canvas.height-size*4);
+  }
+  if(style==="triple"){
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+    ctx.strokeRect(size*2,size*2,canvas.width-size*4,canvas.height-size*4);
+    ctx.strokeRect(size*4,size*4,canvas.width-size*8,canvas.height-size*8);
+  }
 }
 
 function drawText(){
   const text=textInput.value;
   const font=fontSelect.value;
-  const size=fontSize.value;
   const tc=textColor.value;
   const bg=bgColor.value;
+  const size=fontSize.value;
+  const bc=borderColor.value;
+  const bs=borderSize.value;
+  const bst=borderStyle.value;
   const art=artStyle.value;
 
   ctx.setTransform(1,0,0,1,0,0);
@@ -141,21 +154,21 @@ function drawText(){
 
   ctx.setTransform(scale,0,0,scale,0,0);
 
-  ctx.font=size+"px "+font;
+  let style="";
+  if(bold) style="bold ";
+
+  ctx.font=style+size+"px "+font;
   ctx.textAlign="center";
   ctx.textBaseline="middle";
 
-  ctx.shadowColor="transparent";
-  ctx.shadowBlur=0;
-
-  let x = canvas.width/(2*scale);
-  let y = canvas.height/(2*scale);
+  let x=canvas.width/2;
+  let y=canvas.height/2;
 
   if(art==="gradient"){
-    const grad=ctx.createLinearGradient(0,0,canvas.width,0);
-    grad.addColorStop(0,"#ff0066");
-    grad.addColorStop(1,"#6a00ff");
-    ctx.fillStyle=grad;
+    const g=ctx.createLinearGradient(0,0,canvas.width,0);
+    g.addColorStop(0,"#ff0066");
+    g.addColorStop(1,"#6a00ff");
+    ctx.fillStyle=g;
   } else {
     ctx.fillStyle=tc;
   }
@@ -163,9 +176,8 @@ function drawText(){
   if(art==="glow"){
     ctx.shadowColor=tc;
     ctx.shadowBlur=12;
-    ctx.strokeStyle="#000";
-    ctx.lineWidth=2;
-    ctx.strokeText(text,x,y);
+  } else {
+    ctx.shadowBlur=0;
   }
 
   if(art==="curve"){
@@ -182,64 +194,43 @@ function drawText(){
       ctx.restore();
     }
     ctx.restore();
-    return;
+  } else {
+    ctx.fillText(text,x,y);
   }
 
-  ctx.fillText(text,x,y);
-}
-
-function clearCanvas(){
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
-function saveImage(){
-  const a=document.createElement("a");
-  a.download="punjabi-calligraphy.png";
-  a.href=canvas.toDataURL();
-  a.click();
-}
-
-function shareImage(){
-  canvas.toBlob(b=>{
-    const f=new File([b],"punjabi.png",{type:"image/png"});
-    navigator.share({files:[f],title:"Punjabi Calligraphy"});
-  });
-}
-
-/* DRAW TOOL */
-canvas.addEventListener("touchstart",e=>{
-  if(mode==="draw"){
-    drawing=true;
-    const t=e.touches[0];
+  if(underline){
+    let w=ctx.measureText(text).width;
+    let uy=y+size/2;
     ctx.beginPath();
-    ctx.moveTo(t.clientX-canvas.offsetLeft, t.clientY-canvas.offsetTop);
-  }
-  if(e.touches.length==2){
-    startDist=getDist(e.touches[0],e.touches[1]);
-  }
-});
-
-canvas.addEventListener("touchmove",e=>{
-  if(mode==="draw" && drawing){
-    const t=e.touches[0];
-    ctx.lineTo(t.clientX-canvas.offsetLeft, t.clientY-canvas.offsetTop);
-    ctx.strokeStyle=textColor.value;
+    ctx.moveTo(x-w/2,uy);
+    ctx.lineTo(x+w/2,uy);
+    ctx.strokeStyle=tc;
     ctx.lineWidth=3;
     ctx.stroke();
   }
-  if(e.touches.length==2){
-    let newDist=getDist(e.touches[0],e.touches[1]);
-    scale=newDist/startDist;
-    drawText();
+
+  if(bs>0){
+    drawBorders(bs,bc,bst);
   }
-});
-
-canvas.addEventListener("touchend",()=>drawing=false);
-
-function getDist(t1,t2){
-  return Math.hypot(t2.pageX-t1.pageX, t2.pageY-t1.pageY);
 }
+
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);}
+function saveImage(){
+  const a=document.createElement("a");
+  a.download="punjabi.png";
+  a.href=canvas.toDataURL();
+  a.click();
+}
+function shareImage(){
+  canvas.toBlob(blob=>{
+    const file=new File([blob],"punjabi.png",{type:"image/png"});
+    navigator.share({title:"Punjabi Calligraphy",files:[file]});
+  });
+}
+function zoomIn(){scale+=0.1;drawText();}
+function zoomOut(){if(scale>0.2){scale-=0.1;drawText();}}
+function toggleBold(){bold=!bold;drawText();}
+function toggleUnderline(){underline=!underline;drawText();}
 </script>
 
 </body>
