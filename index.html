@@ -1,4 +1,150 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Punjabi Calligraphy App</title>
+
+<!-- Punjabi Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi&family=Baloo+Paaji+2&family=Hind+Siliguri&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Noto Serif Gurmukhi', serif;
+  background:linear-gradient(to bottom,#fff,#f2f2f2);
+  text-align:center;
+}
+header{
+  background:#4b2aad;
+  color:white;
+  padding:12px;
+  font-size:20px;
+  font-weight:bold;
+}
+textarea{
+  width:90%;
+  height:90px;
+  margin:10px;
+  font-size:18px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #aaa;
+}
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+}
+.controls button, select, input{
+  padding:8px;
+  border-radius:8px;
+  border:none;
+  background:#4b2aad;
+  color:white;
+  font-size:14px;
+}
+.controls input[type=color]{
+  padding:2px;
+  height:36px;
+}
+#canvas{
+  border:2px solid #333;
+  margin:10px;
+  touch-action:none;
+}
+</style>
+</head>
+<body>
+
+<header>Punjabi Calligraphy App</header>
+
+<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea>
+
+<div class="controls">
+<select id="fontSelect">
+<option value="Noto Serif Gurmukhi">Noto Serif Gurmukhi</option>
+<option value="Baloo Paaji 2">Baloo Paaji 2</option>
+<option value="Hind Siliguri">Hind Siliguri</option>
+</select>
+
+<button onclick="drawText()">Convert</button>
+<button onclick="clearCanvas()">Delete</button>
+<button onclick="downloadImage()">Save</button>
+<button onclick="shareImage()">Share</button>
+
+<input type="color" id="textColor" value="#000000">
+<input type="color" id="bgColor" value="#ffffff">
+</div>
+
+<canvas id="canvas" width="350" height="350"></canvas>
+
+<script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+let scale=1;
+let startDist=0;
+
+function drawText(){
+  ctx.fillStyle=document.getElementById("bgColor").value;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle=document.getElementById("textColor").value;
+  ctx.font=`30px '${document.getElementById("fontSelect").value}'`;
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText(document.getElementById("textInput").value,canvas.width/2,canvas.height/2);
+}
+
+function clearCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function downloadImage(){
+  const link=document.createElement("a");
+  link.download="punjabi-calligraphy.png";
+  link.href=canvas.toDataURL();
+  link.click();
+}
+
+function shareImage(){
+  canvas.toBlob(blob=>{
+    const file=new File([blob],"punjabi.png",{type:"image/png"});
+    navigator.share({
+      title:"Punjabi Calligraphy",
+      files:[file]
+    });
+  });
+}
+
+/* Zoom with fingers */
+canvas.addEventListener("touchstart",e=>{
+  if(e.touches.length==2){
+    startDist=Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+  }
+});
+
+canvas.addEventListener("touchmove",e=>{
+  if(e.touches.length==2){
+    let newDist=Math.hypot(
+      e.touches[0].clientX-e.touches[1].clientX,
+      e.touches[0].clientY-e.touches[1].clientY
+    );
+    scale=newDist/startDist;
+    ctx.setTransform(scale,0,0,scale,0,0);
+    drawText();
+  }
+});
+</script>
+
+</body>
+</html>
 <html lang="pa">
 <head>
 <meta charset="UTF-8">
