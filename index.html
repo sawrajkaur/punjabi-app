@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Punjabi Calligraphy App</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi&family=Baloo+Paaji+2&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi&family=Noto+Sans+Gurmukhi&family=Baloo+Paaji+2&family=Mukta+Mahee&family=Langar&family=Tiro+Gurmukhi&family=Anek+Gurmukhi&family=Changa&display=swap" rel="stylesheet">
 
 <style>
 body{
@@ -14,8 +14,6 @@ body{
   background:linear-gradient(135deg,#ede9ff,#ffffff);
   text-align:center;
 }
-
-/* Header */
 h1{
   background:linear-gradient(to right,#5a2ca0,#8b5cf6);
   color:white;
@@ -23,68 +21,60 @@ h1{
   margin:0;
   font-size:20px;
 }
-
-/* Main card */
 .container{
   background:white;
-  margin:10px;
-  padding:10px;
+  margin:8px;
+  padding:8px;
   border-radius:15px;
   box-shadow:0 4px 10px rgba(0,0,0,0.15);
 }
-
-/* Inputs */
 textarea{
   width:95%;
-  height:70px;
+  height:60px;
   font-size:18px;
-  margin:6px 0;
+  margin:4px 0;
   border-radius:10px;
   border:1px solid #ccc;
   padding:6px;
 }
-
 select,input,button{
   padding:6px;
-  margin:4px;
+  margin:3px;
   border-radius:10px;
   border:none;
   background:#5a2ca0;
   color:white;
-  font-size:14px;
+  font-size:13px;
 }
-
-input[type=color]{
-  padding:2px;
-  height:32px;
-}
-
-/* Canvas */
+input[type=color]{padding:2px;height:30px;}
 canvas{
   border:2px solid #333;
-  margin-top:8px;
+  margin-top:6px;
   border-radius:12px;
   background:#fff;
   touch-action:none;
 }
+.toolbtn{background:#8b5cf6;}
+.active{background:#16a34a !important;}
 </style>
 </head>
 
 <body>
-
 <h1>Punjabi Calligraphy App</h1>
 
 <div class="container">
 
-<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea><br>
+<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea>
 
 <select id="fontSelect">
   <option value="Noto Serif Gurmukhi">Noto Serif Gurmukhi</option>
   <option value="Noto Sans Gurmukhi">Noto Sans Gurmukhi</option>
   <option value="Baloo Paaji 2">Baloo Paaji 2</option>
   <option value="Mukta Mahee">Mukta Mahee</option>
-  <option value="Langar">Langar (Calligraphy style)</option>
+  <option value="Langar">Langar (hand style)</option>
   <option value="Tiro Gurmukhi">Tiro Gurmukhi</option>
+  <option value="Anek Gurmukhi">Anek Gurmukhi</option>
+  <option value="Changa">Changa (rounded)</option>
 </select><br>
 
 Font Size:
@@ -92,14 +82,24 @@ Font Size:
 
 Text Color:
 <input type="color" id="textColor" value="#000000">
-
 Background:
-<input type="color" id="bgColor" value="#ffffff"><br><br>
+<input type="color" id="bgColor" value="#ffffff"><br>
+
+Word Art:
+<select id="artStyle">
+  <option value="normal">Normal</option>
+  <option value="gradient">Gradient</option>
+  <option value="glow">Glow</option>
+  <option value="curve">Curve</option>
+</select><br>
 
 <button onclick="drawText()">Convert</button>
 <button onclick="clearCanvas()">Delete</button>
 <button onclick="saveImage()">Save</button>
 <button onclick="shareImage()">Share</button><br>
+
+<button class="toolbtn active" id="textTool" onclick="setMode('text')">Text Tool</button>
+<button class="toolbtn" id="drawTool" onclick="setMode('draw')">✍️ Draw Tool</button>
 
 <canvas id="canvas" width="350" height="350"></canvas>
 
@@ -109,80 +109,136 @@ Background:
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let scale = 1;
-let startDist = 0;
+let scale=1, startDist=0;
+let mode="text";
+let drawing=false;
 
-document.getElementById("textColor").addEventListener("input", drawText);
-document.getElementById("bgColor").addEventListener("input", drawText);
-document.getElementById("fontSize").addEventListener("input", drawText);
-document.getElementById("fontSelect").addEventListener("change", drawText);
+textColor.addEventListener("input", drawText);
+bgColor.addEventListener("input", drawText);
+fontSize.addEventListener("input", drawText);
+fontSelect.addEventListener("change", drawText);
+artStyle.addEventListener("change", drawText);
+
+function setMode(m){
+  mode=m;
+  textTool.classList.remove("active");
+  drawTool.classList.remove("active");
+  if(m==="text") textTool.classList.add("active");
+  if(m==="draw") drawTool.classList.add("active");
+}
 
 function drawText(){
-  const text = document.getElementById("textInput").value;
-  const font = document.getElementById("fontSelect").value;
-  const size = document.getElementById("fontSize").value;
-  const textColor = document.getElementById("textColor").value;
-  const bgColor = document.getElementById("bgColor").value;
+  const text=textInput.value;
+  const font=fontSelect.value;
+  const size=fontSize.value;
+  const tc=textColor.value;
+  const bg=bgColor.value;
+  const art=artStyle.value;
 
-  // reset transform
   ctx.setTransform(1,0,0,1,0,0);
-
-  // fill full background
-  ctx.fillStyle = bgColor;
+  ctx.fillStyle=bg;
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // apply zoom
   ctx.setTransform(scale,0,0,scale,0,0);
 
-  ctx.fillStyle = textColor;
-  ctx.font = size + "px " + font;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  ctx.font=size+"px "+font;
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
 
-  ctx.fillText(text, canvas.width/(2*scale), canvas.height/(2*scale));
+  ctx.shadowColor="transparent";
+  ctx.shadowBlur=0;
+
+  let x = canvas.width/(2*scale);
+  let y = canvas.height/(2*scale);
+
+  if(art==="gradient"){
+    const grad=ctx.createLinearGradient(0,0,canvas.width,0);
+    grad.addColorStop(0,"#ff0066");
+    grad.addColorStop(1,"#6a00ff");
+    ctx.fillStyle=grad;
+  } else {
+    ctx.fillStyle=tc;
+  }
+
+  if(art==="glow"){
+    ctx.shadowColor=tc;
+    ctx.shadowBlur=12;
+    ctx.strokeStyle="#000";
+    ctx.lineWidth=2;
+    ctx.strokeText(text,x,y);
+  }
+
+  if(art==="curve"){
+    ctx.save();
+    ctx.translate(x,y);
+    const chars=text.split("");
+    const radius=120;
+    const angle=Math.PI/chars.length;
+    let start=-angle*chars.length/2;
+    for(let i=0;i<chars.length;i++){
+      ctx.save();
+      ctx.rotate(start+i*angle);
+      ctx.fillText(chars[i],0,-radius);
+      ctx.restore();
+    }
+    ctx.restore();
+    return;
+  }
+
+  ctx.fillText(text,x,y);
 }
 
 function clearCanvas(){
-  scale = 1;
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
 function saveImage(){
-  const link = document.createElement("a");
-  link.download = "punjabi.png";
-  link.href = canvas.toDataURL();
-  link.click();
+  const a=document.createElement("a");
+  a.download="punjabi-calligraphy.png";
+  a.href=canvas.toDataURL();
+  a.click();
 }
 
 function shareImage(){
-  canvas.toBlob(blob=>{
-    const file = new File([blob],"punjabi.png",{type:"image/png"});
-    navigator.share({
-      files:[file],
-      title:"Punjabi Calligraphy",
-      text:"Made with Punjabi Calligraphy App"
-    });
+  canvas.toBlob(b=>{
+    const f=new File([b],"punjabi.png",{type:"image/png"});
+    navigator.share({files:[f],title:"Punjabi Calligraphy"});
   });
 }
 
-/* Pinch Zoom */
-canvas.addEventListener("touchstart", e=>{
+/* DRAW TOOL */
+canvas.addEventListener("touchstart",e=>{
+  if(mode==="draw"){
+    drawing=true;
+    const t=e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(t.clientX-canvas.offsetLeft, t.clientY-canvas.offsetTop);
+  }
   if(e.touches.length==2){
-    startDist = getDist(e.touches[0], e.touches[1]);
+    startDist=getDist(e.touches[0],e.touches[1]);
   }
 });
 
-canvas.addEventListener("touchmove", e=>{
+canvas.addEventListener("touchmove",e=>{
+  if(mode==="draw" && drawing){
+    const t=e.touches[0];
+    ctx.lineTo(t.clientX-canvas.offsetLeft, t.clientY-canvas.offsetTop);
+    ctx.strokeStyle=textColor.value;
+    ctx.lineWidth=3;
+    ctx.stroke();
+  }
   if(e.touches.length==2){
-    let newDist = getDist(e.touches[0], e.touches[1]);
-    scale = newDist / startDist;
+    let newDist=getDist(e.touches[0],e.touches[1]);
+    scale=newDist/startDist;
     drawText();
   }
 });
 
-function getDist(t1, t2){
-  return Math.hypot(t2.pageX - t1.pageX, t2.pageY - t1.pageY);
+canvas.addEventListener("touchend",()=>drawing=false);
+
+function getDist(t1,t2){
+  return Math.hypot(t2.pageX-t1.pageX, t2.pageY-t1.pageY);
 }
 </script>
 
