@@ -8,6 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi&family=Noto+Sans+Gurmukhi&family=Baloo+Paaji+2&family=Mukta+Mahee&family=Langar&family=Tiro+Gurmukhi&family=Anek+Gurmukhi&family=Changa&display=swap" rel="stylesheet">
 
 <style>
+@font-face { font-family:"Raavi"; src:url("raavi.ttf"); }
+@font-face { font-family:"AnmolLipi"; src:url("AnmolLipi.ttf"); }
+@font-face { font-family:"Prabhki"; src:url("Prabhki.ttf"); }
+
 body{
   margin:0;
   font-family:sans-serif;
@@ -75,6 +79,9 @@ canvas{
 <option value="Tiro Gurmukhi">Tiro</option>
 <option value="Anek Gurmukhi">Anek</option>
 <option value="Changa">Changa</option>
+<option value="Raavi">Raavi</option>
+<option value="AnmolLipi">Anmol</option>
+<option value="Prabhki">Prabhki</option>
 </select>
 
 <input type="color" id="textColor" value="#000000">
@@ -149,4 +156,109 @@ function undo(){
 }
 
 function toggleBold(){bold=!bold;}
-function toggleUnderline(){underline=!underline
+function toggleUnderline(){underline=!underline;}
+function zoomIn(){scale+=0.1; drawText();}
+function zoomOut(){scale=Math.max(0.2,scale-0.1); drawText();}
+function toggleDraw(){drawMode=!drawMode;}
+
+canvas.addEventListener("pointerdown",e=>{
+ if(drawMode){drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);}
+});
+canvas.addEventListener("pointermove",e=>{
+ if(drawMode && drawing){
+  ctx.lineTo(e.offsetX,e.offsetY);
+  ctx.strokeStyle=textColor.value;
+  ctx.lineWidth=3;
+  ctx.stroke();
+ }
+});
+canvas.addEventListener("pointerup",()=>drawing=false);
+
+function wrapText(text,x,y,lineHeight){
+ const lines=text.split("\n");
+ lines.forEach((line,i)=>{
+  ctx.fillText(line,x,y+i*lineHeight);
+ });
+}
+
+function drawText(){
+ saveState();
+ const text=textInput.value;
+ const font=fontSelect.value;
+ const size=fontSize.value;
+ const tc=textColor.value;
+ const bg=bgColor.value;
+ const borderC=borderColor.value;
+ const borderS=borderSize.value;
+ const art=wordArt.value;
+ const shadow=shadowSize.value;
+ const align=document.getElementById("align").value;
+
+ ctx.setTransform(scale,0,0,scale,0,0);
+ ctx.fillStyle=bg;
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ if(borderS>0){
+  ctx.strokeStyle=borderC;
+  ctx.lineWidth=borderS;
+  ctx.strokeRect(0,0,canvas.width,canvas.height);
+ }
+
+ let style=(bold?"bold ":"")+size+"px "+font;
+ ctx.font=style;
+ ctx.textAlign=align;
+ ctx.textBaseline="top";
+
+ let x=canvas.width/2;
+ if(align=="left") x=20;
+ if(align=="right") x=canvas.width-20;
+
+ if(art=="gradient"){
+  let g=ctx.createLinearGradient(0,0,canvas.width,0);
+  g.addColorStop(0,"red");
+  g.addColorStop(1,"blue");
+  ctx.fillStyle=g;
+ } else {
+  ctx.fillStyle=tc;
+ }
+
+ if(art=="shadow"||art=="glow"){
+  ctx.shadowColor=tc;
+  ctx.shadowBlur=shadow;
+ } else {
+  ctx.shadowBlur=0;
+ }
+
+ wrapText(text,x,40,size+10);
+
+ if(underline){
+  let y=40+size;
+  ctx.beginPath();
+  ctx.moveTo(20,y);
+  ctx.lineTo(canvas.width-20,y);
+  ctx.stroke();
+ }
+}
+
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);}
+function saveImage(){
+ const a=document.createElement("a");
+ a.download="punjabi.png";
+ a.href=canvas.toDataURL();
+ a.click();
+}
+function shareImage(){
+ canvas.toBlob(blob=>{
+  const file=new File([blob],"punjabi.png",{type:"image/png"});
+  navigator.share({files:[file]});
+ });
+}
+function printImage(){
+ const w=window.open("");
+ w.document.write("<img src='"+canvas.toDataURL()+"' style='width:100%'>");
+ w.print();
+}
+</script>
+
+</body>
+</html>
