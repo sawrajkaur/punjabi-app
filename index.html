@@ -56,6 +56,16 @@ canvas{
 <textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ (multiple lines allowed)"></textarea>
 
 <div class="controls">
+
+<button onclick="drawText()">Convert</button>
+<button onclick="undo()">Undo</button>
+<button onclick="clearCanvas()">Delete</button>
+<button onclick="saveImage()">Save</button>
+<button onclick="shareImage()">Share</button>
+<button onclick="printImage()">Print</button>
+
+<br><br>
+
 <select id="fontSelect">
 <option value="Noto Serif Gurmukhi">Noto Serif</option>
 <option value="Noto Sans Gurmukhi">Noto Sans</option>
@@ -98,7 +108,7 @@ Word Art:
 </select>
 
 <br>
-<button onclick="drawText()">Convert</button>
+
 <button onclick="toggleBold()">Bold</button>
 <button onclick="toggleUnderline()">Underline</button>
 
@@ -109,16 +119,10 @@ Border Size <input type="range" id="borderSize" min="0" max="20" value="4">
 
 <br><br>
 
-<button onclick="undo()">Undo</button>
-<button onclick="clearCanvas()">Delete</button>
-<button onclick="saveImage()">Save</button>
-<button onclick="shareImage()">Share</button>
-<button onclick="printImage()">Print</button>
-
-<br>
 <button onclick="zoomIn()">Zoom +</button>
 <button onclick="zoomOut()">Zoom -</button>
 <button onclick="toggleDraw()">Hand Work ✍️</button>
+
 </div>
 
 <canvas id="canvas" width="350" height="350"></canvas>
