@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Punjabi Calligraphy Poster Maker</title>
+
 <style>
 @font-face {
   font-family: 'Raavi';
@@ -20,79 +21,109 @@
   font-family: 'GurbaniAkhar';
   src: url('GurbaniAkharHeavy.ttf');
 }
+
+body{
+  font-family:sans-serif;
+  background:linear-gradient(#efe6ff,#ffffff);
+  text-align:center;
+}
+h2{
+  background:#6a2ca0;
+  color:white;
+  padding:10px;
+}
+textarea{
+  width:90%;
+  height:80px;
+  font-size:20px;
+  border-radius:10px;
+  padding:10px;
+}
+select,input,button{
+  margin:5px;
+  padding:8px;
+  border-radius:8px;
+}
+button{
+  background:#6a2ca0;
+  color:white;
+}
+canvas{
+  border:2px solid black;
+  margin-top:10px;
+  touch-action:none;
+}
 </style>
 </head>
+
 <body>
 
-<h1>Punjabi Calligraphy Poster Maker</h1>
+<h2>Punjabi Calligraphy Poster Maker</h2>
 
-<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea>
+<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea><br>
 
-<div class="controls">
 <select id="fontSelect">
-<option value="Noto Serif Gurmukhi">Noto Serif</option>
-<option value="serif">Serif</option>
-<option value="cursive">Cursive</option>
+  <option value="Raavi">Raavi</option>
+  <option value="Gurblipi">Gurblipi</option>
+  <option value="Prabhki">Prabhki</option>
+  <option value="GurbaniAkhar">Gurbani Akhar</option>
+  <option value="Noto Serif Gurmukhi">Noto Serif</option>
+  <option value="serif">Serif</option>
 </select>
 
 <input type="color" id="textColor" value="#000000">
-<input type="color" id="bgColor" value="#ffffff">
+<input type="color" id="bgColor" value="#ffffff"><br>
 
-<br>
 Font Size:
 <input type="range" id="fontSize" min="20" max="120" value="50">
 
 Shadow:
-<input type="range" id="shadowSize" min="0" max="20" value="0">
-
-<br>
+<input type="range" id="shadowSize" min="0" max="20" value="0"><br>
 
 Align:
 <select id="align">
-<option value="left">Left</option>
-<option value="center">Center</option>
-<option value="right">Right</option>
-</select>
-
-Word Art:
-<select id="wordArt">
-<option value="normal">Normal</option>
-<option value="curve">Curve</option>
-<option value="wave">Wave</option>
-</select>
-
-<br>
+  <option value="left">Left</option>
+  <option value="center">Center</option>
+  <option value="right">Right</option>
+</select><br>
 
 <button onclick="toggleBold()">Bold</button>
-<button onclick="toggleUnderline()">Underline</button>
-
-<br>
+<button onclick="toggleUnderline()">Underline</button><br>
 
 Border Color:
 <input type="color" id="borderColor" value="#000000">
 Border Size:
-<input type="range" id="borderSize" min="0" max="20" value="0">
-
-<br>
+<input type="range" id="borderSize" min="0" max="20" value="0"><br>
 
 <button onclick="drawText()">Convert</button>
 <button onclick="undo()">Undo</button>
 <button onclick="clearCanvas()">Delete</button>
 <button onclick="saveImage()">Save</button>
 <button onclick="shareImage()">Share</button>
-<button onclick="window.print()">Print</button>
-
-<br>
+<button onclick="printImage()">Print</button><br>
 
 <button onclick="zoomIn()">Zoom +</button>
 <button onclick="zoomOut()">Zoom -</button>
 <button onclick="toggleDraw()">Hand Work ✍️</button>
-</div>
 
+<br>
 <canvas id="canvas" width="400" height="400"></canvas>
+
 <script>
+window.onload=function(){
+
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
+
+const textInput=document.getElementById("textInput");
+const fontSelect=document.getElementById("fontSelect");
+const fontSize=document.getElementById("fontSize");
+const textColor=document.getElementById("textColor");
+const bgColor=document.getElementById("bgColor");
+const borderColor=document.getElementById("borderColor");
+const borderSize=document.getElementById("borderSize");
+const align=document.getElementById("align");
+const shadowSize=document.getElementById("shadowSize");
 
 let scale=1;
 let bold=false;
@@ -102,112 +133,117 @@ let drawing=false;
 let history=[];
 
 function saveState(){
-history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+  history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+  if(history.length>20) history.shift();
 }
 
-function undo(){
-if(history.length>0){
-ctx.putImageData(history.pop(),0,0);
-}
+window.undo=function(){
+  if(history.length>0){
+    ctx.putImageData(history.pop(),0,0);
+  }
 }
 
-function toggleBold(){bold=!bold;}
-function toggleUnderline(){underline=!underline;}
-
-function zoomIn(){scale+=0.1;drawText();}
-function zoomOut(){scale=Math.max(0.2,scale-0.1);drawText();}
-function toggleDraw(){drawMode=!drawMode;}
+window.toggleBold=function(){bold=!bold;drawText();}
+window.toggleUnderline=function(){underline=!underline;drawText();}
+window.zoomIn=function(){scale+=0.1;drawText();}
+window.zoomOut=function(){scale=Math.max(0.2,scale-0.1);drawText();}
+window.toggleDraw=function(){drawMode=!drawMode;}
 
 canvas.addEventListener("pointerdown",e=>{
-if(drawMode){
-drawing=true;
-ctx.beginPath();
-ctx.moveTo(e.offsetX,e.offsetY);
-}
+  if(drawMode){
+    drawing=true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX,e.offsetY);
+  }
 });
 canvas.addEventListener("pointermove",e=>{
-if(drawMode && drawing){
-ctx.lineTo(e.offsetX,e.offsetY);
-ctx.strokeStyle=document.getElementById("textColor").value;
-ctx.lineWidth=3;
-ctx.stroke();
-}
+  if(drawMode && drawing){
+    ctx.lineTo(e.offsetX,e.offsetY);
+    ctx.strokeStyle=textColor.value;
+    ctx.lineWidth=3;
+    ctx.stroke();
+  }
 });
 canvas.addEventListener("pointerup",()=>drawing=false);
 
-function clearCanvas(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
 function wrapText(text,x,y,lineHeight){
-const lines=text.split("\n");
-lines.forEach((line,i)=>{
-ctx.fillText(line,x,y+i*lineHeight);
-if(underline){
-let w=ctx.measureText(line).width;
-ctx.fillRect(x,y+i*lineHeight+5,w,2);
-}
-});
-}
-
-function drawText(){
-saveState();
-
-const text=textInput.value;
-const font=fontSelect.value;
-const size=fontSize.value;
-const tc=textColor.value;
-const bg=bgColor.value;
-const bc=borderColor.value;
-const bs=borderSize.value;
-const shadow=shadowSize.value;
-const align=document.getElementById("align").value;
-const art=document.getElementById("wordArt").value;
-
-ctx.setTransform(1,0,0,1,0,0);
-ctx.clearRect(0,0,canvas.width,canvas.height);
-ctx.scale(scale,scale);
-
-ctx.fillStyle=bg;
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-if(bs>0){
-ctx.strokeStyle=bc;
-ctx.lineWidth=bs;
-ctx.strokeRect(0,0,canvas.width,canvas.height);
+  const lines=text.split("\n");
+  lines.forEach((line,i)=>{
+    ctx.fillText(line,x,y+i*lineHeight);
+    if(underline){
+      let w=ctx.measureText(line).width;
+      ctx.fillRect(x,y+i*lineHeight+5,w,2);
+    }
+  });
 }
 
-ctx.fillStyle=tc;
-ctx.textAlign=align;
-ctx.textBaseline="top";
+window.drawText=function(){
+  saveState();
 
-let style="";
-if(bold) style+="bold ";
-ctx.font=style+size+"px "+font;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.scale(scale,scale);
 
-ctx.shadowColor="black";
-ctx.shadowBlur=shadow;
+  ctx.fillStyle=bgColor.value;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-let x=align=="left"?10:align=="center"?canvas.width/2:canvas.width-10;
-let y=20;
+  if(borderSize.value>0){
+    ctx.strokeStyle=borderColor.value;
+    ctx.lineWidth=borderSize.value;
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+  }
 
-wrapText(text,x,y,size+10);
+  ctx.fillStyle=textColor.value;
+  ctx.shadowColor=textColor.value;
+  ctx.shadowBlur=shadowSize.value;
+
+  let style="";
+  if(bold) style+="bold ";
+  ctx.font=style+fontSize.value+"px "+fontSelect.value;
+
+  ctx.textAlign=align.value;
+  ctx.textBaseline="top";
+
+  let x=canvas.width/2;
+  if(align.value==="left") x=10;
+  if(align.value==="right") x=canvas.width-10;
+
+  wrapText(textInput.value,x,20,fontSize.value*1.3);
 }
 
-function saveImage(){
-const link=document.createElement("a");
-link.download="poster.png";
-link.href=canvas.toDataURL();
-link.click();
+window.clearCanvas=function(){
+  saveState();
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-function shareImage(){
-canvas.toBlob(blob=>{
-const file=new File([blob],"poster.png",{type:"image/png"});
-if(navigator.share){
-navigator.share({files:[file],title:"Poster"});
+window.saveImage=function(){
+  const a=document.createElement("a");
+  a.href=canvas.toDataURL("image/png");
+  a.download="poster.png";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
-});
+
+window.shareImage=function(){
+  canvas.toBlob(blob=>{
+    const file=new File([blob],"poster.png",{type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:"Punjabi Poster"});
+    }else{
+      saveImage();
+      alert("Direct share supported ਨਹੀਂ। Image download ਹੋ ਗਈ।");
+    }
+  });
+}
+
+window.printImage=function(){
+  const w=window.open("");
+  w.document.write("<img src='"+canvas.toDataURL()+"' style='width:100%'>");
+  w.print();
+  w.close();
+}
+
 }
 </script>
 
