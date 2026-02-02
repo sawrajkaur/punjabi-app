@@ -2,38 +2,81 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Punjabi Calligraphy Poster Maker</title>
+<title>Punjabi Poster Maker</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-@font-face{font-family:Raavi;src:url(raavi.ttf);}
-@font-face{font-family:Gurlipi;src:url(Gurlipi.ttf);}
-@font-face{font-family:Prabhki;src:url(Prabhki.ttf);}
-@font-face{font-family:Bularah;src:url(bularah7.ttf);}
+@font-face{font-family:"Raavi";src:url("raavi.ttf");}
+@font-face{font-family:"Gurblipi";src:url("Gurblipi.ttf");}
+@font-face{font-family:"Prabhki";src:url("Prabhki.ttf");}
+@font-face{font-family:"Bularah7";src:url("bularah7.ttf");}
 
-body{font-family:sans-serif;background:#d8d2da;text-align:center;}
-textarea{width:90%;height:80px;font-size:18px;}
-canvas{border:2px solid black;margin-top:10px;}
-button,select,input{margin:4px;padding:5px;}
+body{
+  font-family:sans-serif;
+  background:#efe7ff;
+  text-align:center;
+  padding:10px;
+}
+.controls{
+  background:white;
+  padding:10px;
+  border-radius:10px;
+}
+textarea{
+  width:100%;
+  height:70px;
+  font-size:18px;
+}
+select,input,button{
+  margin:4px;
+  padding:6px;
+  border-radius:6px;
+}
+button{
+  background:#6a2ca0;
+  color:white;
+  border:none;
+}
+canvas{
+  border:2px solid black;
+  margin-top:10px;
+  background:white;
+}
 </style>
 </head>
 
 <body>
+
 <h2>Punjabi Calligraphy Poster Maker</h2>
 
-<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea><br>
+<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea>
 
+<div class="controls">
+
+Font:
 <select id="fontSelect">
-<option value="Raavi">Raavi</option>
-<option value="Gurlipi">Gurlipi</option>
-<option value="Prabhki">Prabhki</option>
-<option value="Bularah">Bularah</option>
+  <option value="Raavi">Raavi</option>
+  <option value="Gurblipi">Gurblipi</option>
+  <option value="Prabhki">Prabhki</option>
+  <option value="Bularah7">Bularah7</option>
+  <option value="'Noto Serif Gurmukhi',serif">Noto Serif</option>
 </select>
 
+Text Color:
 <input type="color" id="textColor" value="#000000">
+
+Background Color:
 <input type="color" id="bgColor" value="#ffffff"><br>
 
-Font Size <input type="range" id="fontSize" min="20" max="150" value="50">
-Shadow <input type="range" id="shadowSize" min="0" max="20" value="0"><br>
+Font Size:
+<input type="range" id="fontSize" min="20" max="150" value="50">
+
+Border Size:
+<input type="range" id="borderSize" min="0" max="20" value="2">
+
+Border Color:
+<input type="color" id="borderColor" value="#000000"><br>
 
 Align:
 <select id="align">
@@ -42,22 +85,20 @@ Align:
 <option value="right">Right</option>
 </select>
 
-<button onclick="toggleBold()">Bold</button>
-<button onclick="toggleUnderline()">Underline</button><br>
-
-Border Color <input type="color" id="borderColor" value="#000000">
-Border Size <input type="range" id="borderSize" min="0" max="20" value="2"><br><br>
+Artwork:
+<select id="artwork">
+<option value="none">None</option>
+<option value="gradient">Gradient</option>
+<option value="pattern">Pattern</option>
+</select><br><br>
 
 <button onclick="drawText()">Convert</button>
-<button onclick="undo()">Undo</button>
 <button onclick="clearCanvas()">Delete</button>
 <button onclick="saveImage()">Save</button>
 <button onclick="shareImage()">Share</button>
-<button onclick="window.print()">Print</button><br>
+<button onclick="printImage()">Print</button>
 
-<button onclick="zoomIn()">Zoom +</button>
-<button onclick="zoomOut()">Zoom -</button>
-<button onclick="toggleDraw()">Hand Work ✍️</button><br>
+</div>
 
 <canvas id="canvas" width="400" height="400"></canvas>
 
@@ -65,85 +106,98 @@ Border Size <input type="range" id="borderSize" min="0" max="20" value="2"><br><
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 
-let scale=1;
-let bold=false;
-let underline=false;
-let drawMode=false;
-let drawing=false;
-let history=[];
-
-function saveState(){
-history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+function drawBackground(bg,art){
+  if(art==="gradient"){
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,bg);
+    g.addColorStop(1,"#ddd");
+    ctx.fillStyle=g;
+  }else if(art==="pattern"){
+    ctx.fillStyle=bg;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle="#ccc";
+    for(let i=0;i<canvas.width;i+=20){
+      ctx.beginPath();
+      ctx.moveTo(i,0);
+      ctx.lineTo(i,canvas.height);
+      ctx.stroke();
+    }
+  }else{
+    ctx.fillStyle=bg;
+  }
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 }
-
-function undo(){
-if(history.length>0){
-ctx.putImageData(history.pop(),0,0);
-}
-}
-
-function toggleBold(){bold=!bold;drawText();}
-function toggleUnderline(){underline=!underline;drawText();}
-function zoomIn(){scale+=0.1;drawText();}
-function zoomOut(){scale=Math.max(0.2,scale-0.1);drawText();}
-function toggleDraw(){drawMode=!drawMode;}
-
-canvas.addEventListener("pointerdown",e=>{
-if(drawMode){drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);}
-});
-canvas.addEventListener("pointermove",e=>{
-if(drawMode && drawing){
-ctx.lineTo(e.offsetX,e.offsetY);
-ctx.strokeStyle=textColor.value;
-ctx.lineWidth=3;
-ctx.stroke();
-}
-});
-canvas.addEventListener("pointerup",()=>drawing=false);
 
 function drawText(){
-  const text = document.getElementById("textInput").value;
-  const font = document.getElementById("fontSelect").value;
-  const size = document.getElementById("fontSize").value;
-  const tc = document.getElementById("textColor").value;
-  const bg = document.getElementById("bgColor").value;
-  const align = document.getElementById("align").value;
+  const text=textInput.value;
+  const font=fontSelect.value;
+  const size=fontSize.value;
+  const tc=textColor.value;
+  const bg=bgColor.value;
+  const borderS=borderSize.value;
+  const borderC=borderColor.value;
+  const align=alignSelect();
+  const art=artwork.value;
 
-  ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.scale(scale,scale);
 
-  // background
-  ctx.fillStyle = bg;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  drawBackground(bg,art);
 
-  // text
-  ctx.fillStyle = tc;
-  ctx.font = size + "px " + font;
-  ctx.textAlign = align;
-  ctx.textBaseline = "top";
+  if(borderS>0){
+    ctx.strokeStyle=borderC;
+    ctx.lineWidth=borderS;
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+  }
 
-  const lines = text.split("\n");
-  let y = 20;
-  lines.forEach(line=>{
-    ctx.fillText(line, canvas.width/2, y);
-    y += size + 10;
+  ctx.fillStyle=tc;
+  ctx.font=size+"px "+font;
+  ctx.textAlign=align;
+  ctx.textBaseline="top";
+
+  let x=20;
+  if(align==="center") x=canvas.width/2;
+  if(align==="right") x=canvas.width-20;
+
+  let y=20;
+  text.split("\n").forEach(line=>{
+    ctx.fillText(line,x,y);
+    y+=parseInt(size)+10;
   });
 }
-a.width,canvas.height);
+
+function alignSelect(){
+  return document.getElementById("align").value;
+}
+
+function clearCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
 function saveImage(){
-const a=document.createElement("a");
-a.download="poster.png";
-a.href=canvas.toDataURL();
-a.click();
+  const a=document.createElement("a");
+  a.download="poster.png";
+  a.href=canvas.toDataURL();
+  a.click();
 }
 
 function shareImage(){
-canvas.toBlob(blob=>{
-const file=new File([blob],"poster.png",{type:"image/png"});
-navigator.share({files:[file],title:"Punjabi Poster"});
-});
+  canvas.toBlob(blob=>{
+    const file=new File([blob],"poster.png",{type:"image/png"});
+    if(navigator.share){
+      navigator.share({files:[file],title:"Poster"});
+    }else{
+      saveImage();
+      alert("Share supported ਨਹੀਂ, image download ਹੋ ਗਈ।");
+    }
+  });
+}
+
+function printImage(){
+  const w=window.open("");
+  w.document.write("<img src='"+canvas.toDataURL()+"' style='width:100%'>");
+  w.print();
 }
 </script>
+
 </body>
 </html>
