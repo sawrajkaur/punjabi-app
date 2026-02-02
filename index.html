@@ -128,43 +128,56 @@ function drawBackground(bg,art){
   ctx.fillRect(0,0,canvas.width,canvas.height);
 }
 
-function drawText(){
-  const text=textInput.value;
-  const font=fontSelect.value;
-  const size=fontSize.value;
-  const tc=textColor.value;
-  const bg=bgColor.value;
-  const borderS=borderSize.value;
-  const borderC=borderColor.value;
-  const align=alignSelect();
-  const art=artwork.value;
 
+function drawText(){
+  saveState();
+
+  const text = textInput.value;
+  const font = fontSelect.value;
+  const size = fontSize.value;
+  const tc = textColor.value;
+  const bg = bgColor.value;
+  const borderC = borderColor.value;
+  const borderS = borderSize.value;
+  const art = artwork.value;
+  const shadow = shadowSize.value;
+  const align = document.getElementById("align").value;
+
+  ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  drawBackground(bg,art);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
   if(borderS>0){
-    ctx.strokeStyle=borderC;
-    ctx.lineWidth=borderS;
+    ctx.strokeStyle = borderC;
+    ctx.lineWidth = borderS;
     ctx.strokeRect(0,0,canvas.width,canvas.height);
   }
 
-  ctx.fillStyle=tc;
-  ctx.font=size+"px "+font;
-  ctx.textAlign=align;
-  ctx.textBaseline="top";
+  ctx.font = (bold?"bold ":"") + size+"px "+font;
+  ctx.fillStyle = tc;
+  ctx.textAlign = align;
+  ctx.textBaseline = "middle";
 
-  let x=20;
-  if(align==="center") x=canvas.width/2;
-  if(align==="right") x=canvas.width-20;
+  ctx.shadowColor = tc;
+  ctx.shadowBlur = shadow;
 
-  let y = canvas.height/4;
-  text.split("\n").forEach(line=>{
-    ctx.fillText(line,x,y);
-    y+=parseInt(size)+10;
+  let x;
+  if(align=="left") x=20;
+  else if(align=="right") x=canvas.width-20;
+  else x=canvas.width/2;
+
+  let lines = text.split("\n");
+  let lineHeight = size*1.4;
+  let totalHeight = lines.length * lineHeight;
+  let y = canvas.height/2 - totalHeight/2;
+
+  lines.forEach(line=>{
+    ctx.fillText(line, x, y);
+    y += lineHeight;
   });
 }
-
 function alignSelect(){
   return document.getElementById("align").value;
 }
