@@ -101,85 +101,50 @@ Artwork:
 </div>
 
 <canvas id="canvas" width="400" height="400"></canvas>
-
 <script>
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-function drawBackground(bg,art){
-  if(art==="gradient"){
-    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-    g.addColorStop(0,bg);
-    g.addColorStop(1,"#ddd");
-    ctx.fillStyle=g;
-  }else if(art==="pattern"){
-    ctx.fillStyle=bg;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle="#ccc";
-    for(let i=0;i<canvas.width;i+=20){
-      ctx.beginPath();
-      ctx.moveTo(i,0);
-      ctx.lineTo(i,canvas.height);
-      ctx.stroke();
-    }
-  }else{
-    ctx.fillStyle=bg;
-  }
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-}
-
+const textInput = document.getElementById("textInput");
+const fontSelect = document.getElementById("fontSelect");
+const fontSize = document.getElementById("fontSize");
+const textColor = document.getElementById("textColor");
+const bgColor = document.getElementById("bgColor");
+const borderSize = document.getElementById("borderSize");
+const borderColor = document.getElementById("borderColor");
+const align = document.getElementById("align");
 
 function drawText(){
-  saveState();
-
   const text = textInput.value;
   const font = fontSelect.value;
   const size = fontSize.value;
   const tc = textColor.value;
   const bg = bgColor.value;
-  const borderC = borderColor.value;
-  const borderS = borderSize.value;
-  const art = artwork.value;
-  const shadow = shadowSize.value;
-  const align = document.getElementById("align").value;
+  const bs = borderSize.value;
+  const bc = borderColor.value;
+  const al = align.value;
 
-  ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   ctx.fillStyle = bg;
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  if(borderS>0){
-    ctx.strokeStyle = borderC;
-    ctx.lineWidth = borderS;
+  if(bs > 0){
+    ctx.strokeStyle = bc;
+    ctx.lineWidth = bs;
     ctx.strokeRect(0,0,canvas.width,canvas.height);
   }
 
-  ctx.font = (bold?"bold ":"") + size+"px "+font;
   ctx.fillStyle = tc;
-  ctx.textAlign = align;
-  ctx.textBaseline = "middle";
+  ctx.font = size + "px " + font;
+  ctx.textAlign = al;
+  ctx.textBaseline = "top";
 
-  ctx.shadowColor = tc;
-  ctx.shadowBlur = shadow;
+  let x = canvas.width/2;
+  if(al === "left") x = 10;
+  if(al === "right") x = canvas.width-10;
 
-  let x;
-  if(align=="left") x=20;
-  else if(align=="right") x=canvas.width-20;
-  else x=canvas.width/2;
-
-  let lines = text.split("\n");
-  let lineHeight = size*1.4;
-  let totalHeight = lines.length * lineHeight;
-  let y = canvas.height/2 - totalHeight/2;
-
-  lines.forEach(line=>{
-    ctx.fillText(line, x, y);
-    y += lineHeight;
-  });
-}
-function alignSelect(){
-  return document.getElementById("align").value;
+  ctx.fillText(text, x, 20);
 }
 
 function clearCanvas(){
@@ -187,30 +152,18 @@ function clearCanvas(){
 }
 
 function saveImage(){
-  const a=document.createElement("a");
-  a.download="poster.png";
-  a.href=canvas.toDataURL();
-  a.click();
+  const link = document.createElement("a");
+  link.download = "poster.png";
+  link.href = canvas.toDataURL();
+  link.click();
 }
 
 function shareImage(){
   canvas.toBlob(blob=>{
-    const file=new File([blob],"poster.png",{type:"image/png"});
-    if(navigator.share){
-      navigator.share({files:[file],title:"Poster"});
-    }else{
-      saveImage();
-      alert("Share supported ਨਹੀਂ, image download ਹੋ ਗਈ।");
-    }
-  });
-}
-
-function printImage(){
-  const w=window.open("");
-  w.document.write("<img src='"+canvas.toDataURL()+"' style='width:100%'>");
-  w.print();
-}
-</script>
-
+    const file = new File([blob],"poster.png",{type:"image/png"});
+    navigator.share({
+      files:[file],
+      title:"Punjabi Poster",
+      text:"My Punjabi Poster
 </body>
 </html>
