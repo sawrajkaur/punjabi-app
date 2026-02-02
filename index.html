@@ -109,26 +109,58 @@ function drawText(){
   const text = document.getElementById("textInput").value;
   const font = document.getElementById("fontSelect").value;
   const size = document.getElementById("fontSize").value;
-  const textColor = document.getElementById("textColor").value;
-  const bgColor = document.getElementById("bgColor").value;
+  const tc = document.getElementById("textColor").value;
+  const bg = document.getElementById("bgColor").value;
+  const borderC = document.getElementById("borderColor").value;
+  const borderS = document.getElementById("borderSize").value;
+  const art = document.getElementById("artwork").value;
   const align = document.getElementById("align").value;
 
-  ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillStyle = bgColor;
+  // ---- BACKGROUND / ARTWORK ----
+  if(art === "gradient"){
+    const g = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0, bg);
+    g.addColorStop(1, "#ddd");
+    ctx.fillStyle = g;
+  }else if(art === "pattern"){
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle = "#ccc";
+    for(let i=0;i<canvas.width;i+=20){
+      ctx.beginPath();
+      ctx.moveTo(i,0);
+      ctx.lineTo(i,canvas.height);
+      ctx.stroke();
+    }
+  }else{
+    ctx.fillStyle = bg;
+  }
+
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillStyle = textColor;
+  // ---- BORDER ----
+  if(borderS > 0){
+    ctx.strokeStyle = borderC;
+    ctx.lineWidth = borderS;
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+  }
+
+  // ---- TEXT ----
+  ctx.fillStyle = tc;
   ctx.font = size + "px " + font;
   ctx.textAlign = align;
   ctx.textBaseline = "top";
 
-  let lines = text.split("\n");
+  let x = canvas.width/2;
+  if(align === "left") x = 10;
+  if(align === "right") x = canvas.width-10;
+
   let y = 20;
-  lines.forEach(line=>{
-    ctx.fillText(line, canvas.width/2, y);
-    y += size + 10;
+  text.split("\n").forEach(line=>{
+    ctx.fillText(line,x,y);
+    y += parseInt(size) + 10;
   });
 }
 </script>
