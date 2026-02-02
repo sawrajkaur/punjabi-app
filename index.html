@@ -105,48 +105,33 @@ Artwork:
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const textInput = document.getElementById("textInput");
-const fontSelect = document.getElementById("fontSelect");
-const fontSize = document.getElementById("fontSize");
-const textColor = document.getElementById("textColor");
-const bgColor = document.getElementById("bgColor");
-const borderSize = document.getElementById("borderSize");
-const borderColor = document.getElementById("borderColor");
-const align = document.getElementById("align");
-
 function drawText(){
-  const text = textInput.value;
-  const font = fontSelect.value;
-  const size = fontSize.value;
-  const tc = textColor.value;
-  const bg = bgColor.value;
-  const bs = borderSize.value;
-  const bc = borderColor.value;
-  const al = align.value;
+  const text = document.getElementById("textInput").value;
+  const font = document.getElementById("fontSelect").value;
+  const size = document.getElementById("fontSize").value;
+  const textColor = document.getElementById("textColor").value;
+  const bgColor = document.getElementById("bgColor").value;
+  const align = document.getElementById("align").value;
 
+  ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillStyle = bg;
+  ctx.fillStyle = bgColor;
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  if(bs > 0){
-    ctx.strokeStyle = bc;
-    ctx.lineWidth = bs;
-    ctx.strokeRect(0,0,canvas.width,canvas.height);
-  }
-
-  ctx.fillStyle = tc;
+  ctx.fillStyle = textColor;
   ctx.font = size + "px " + font;
-  ctx.textAlign = al;
+  ctx.textAlign = align;
   ctx.textBaseline = "top";
 
-  let x = canvas.width/2;
-  if(al === "left") x = 10;
-  if(al === "right") x = canvas.width-10;
-
-  ctx.fillText(text, x, 20);
+  let lines = text.split("\n");
+  let y = 20;
+  lines.forEach(line=>{
+    ctx.fillText(line, canvas.width/2, y);
+    y += size + 10;
+  });
 }
-
+</script>
 function clearCanvas(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
