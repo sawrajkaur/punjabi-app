@@ -1,4 +1,202 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Punjabi Calligraphy Poster Maker</title>
+<style>
+body{
+  font-family: Arial;
+  background:#f2e9ff;
+  text-align:center;
+}
+button,select,input{
+  margin:4px;
+  padding:6px 10px;
+  border-radius:6px;
+}
+canvas{
+  border:2px solid black;
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<h2>Punjabi Calligraphy Poster Maker</h2>
+
+<textarea id="textInput" rows="3" cols="30" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea><br>
+
+<select id="fontSelect">
+<option value="Noto Serif Gurmukhi">Noto Serif</option>
+<option value="serif">Serif</option>
+<option value="cursive">Cursive</option>
+</select>
+
+<input type="color" id="textColor" value="#000000">
+<input type="color" id="bgColor" value="#ffffff"><br>
+
+Font Size:
+<input type="range" id="fontSize" min="20" max="120" value="40">
+
+Shadow:
+<input type="range" id="shadowSize" min="0" max="20" value="0"><br>
+
+Align:
+<select id="align">
+<option value="left">Left</option>
+<option value="center">Center</option>
+<option value="right">Right</option>
+</select>
+
+<button onclick="toggleBold()">Bold</button>
+<button onclick="toggleUnderline()">Underline</button><br>
+
+Border Color:
+<input type="color" id="borderColor" value="#000000">
+Border Size:
+<input type="range" id="borderSize" min="0" max="20" value="0"><br>
+
+<button onclick="drawText()">Convert</button>
+<button onclick="undo()">Undo</button>
+<button onclick="clearCanvas()">Delete</button>
+<button onclick="saveImage()">Save</button>
+<button onclick="shareImage()">Share</button>
+<button onclick="printImage()">Print</button><br>
+
+<button onclick="zoomIn()">Zoom +</button>
+<button onclick="zoomOut()">Zoom -</button>
+<button onclick="toggleDraw()">Hand Work ✍</button><br>
+
+<canvas id="canvas" width="400" height="400"></canvas>
+
+<script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+let scale=1;
+let bold=false;
+let underline=false;
+let history=[];
+let drawMode=false;
+let drawing=false;
+
+function saveState(){
+  history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+}
+
+function undo(){
+  if(history.length>0){
+    ctx.putImageData(history.pop(),0,0);
+  }
+}
+
+function toggleBold(){ bold=!bold; drawText(); }
+function toggleUnderline(){ underline=!underline; drawText(); }
+
+function zoomIn(){ scale+=0.1; drawText(); }
+function zoomOut(){ scale=Math.max(0.3,scale-0.1); drawText(); }
+
+function toggleDraw(){ drawMode=!drawMode; }
+
+canvas.addEventListener("pointerdown",e=>{
+ if(drawMode){
+  drawing=true;
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX,e.offsetY);
+ }
+});
+canvas.addEventListener("pointermove",e=>{
+ if(drawMode && drawing){
+  ctx.lineTo(e.offsetX,e.offsetY);
+  ctx.strokeStyle=textColor.value;
+  ctx.lineWidth=3;
+  ctx.stroke();
+ }
+});
+canvas.addEventListener("pointerup",()=>drawing=false);
+
+function drawText(){
+ saveState();
+ ctx.setTransform(1,0,0,1,0,0);
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.scale(scale,scale);
+
+ const text=textInput.value;
+ const font=fontSelect.value;
+ const size=fontSize.value;
+ const tc=textColor.value;
+ const bg=bgColor.value;
+ const borderC=borderColor.value;
+ const borderS=borderSize.value;
+ const shadow=shadowSize.value;
+ const align=document.getElementById("align").value;
+
+ ctx.fillStyle=bg;
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ if(borderS>0){
+   ctx.strokeStyle=borderC;
+   ctx.lineWidth=borderS;
+   ctx.strokeRect(0,0,canvas.width,canvas.height);
+ }
+
+ ctx.shadowColor="black";
+ ctx.shadowBlur=shadow;
+
+ ctx.fillStyle=tc;
+ ctx.textAlign=align;
+ ctx.textBaseline="top";
+
+ let style="";
+ if(bold) style+="bold ";
+ ctx.font=style+size+"px "+font;
+
+ let x=align=="left"?10:align=="center"?canvas.width/2:canvas.width-10;
+ let y=20;
+
+ const lines=text.split("\n");
+ lines.forEach(line=>{
+   ctx.fillText(line,x,y);
+   if(underline){
+     let w=ctx.measureText(line).width;
+     let ux=align=="center"?x-w/2:align=="right"?x-w:x;
+     ctx.fillRect(ux,y+size+2,w,2);
+   }
+   y+=size+10;
+ });
+}
+
+function clearCanvas(){
+ saveState();
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function saveImage(){
+ const link=document.createElement("a");
+ link.download="punjabi-poster.png";
+ link.href=canvas.toDataURL();
+ link.click();
+}
+
+function shareImage(){
+ canvas.toBlob(blob=>{
+  const file=new File([blob],"poster.png",{type:"image/png"});
+  navigator.share({
+    files:[file],
+    title:"Punjabi Poster"
+  });
+ });
+}
+
+function printImage(){
+ const win=window.open();
+ win.document.write("<img src='"+canvas.toDataURL()+"'>");
+ win.print();
+}
+</script>
+
+</body>
+</html>
 <html lang="pa">
 <head>
 <meta charset="UTF-8">
