@@ -158,7 +158,7 @@ function drawText(){
   if(align==="center") x=canvas.width/2;
   if(align==="right") x=canvas.width-20;
 
-  let y=20;
+  let y = canvas.height/4;
   text.split("\n").forEach(line=>{
     ctx.fillText(line,x,y);
     y+=parseInt(size)+10;
