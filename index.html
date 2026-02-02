@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="pa">
 <head>
 <meta charset="UTF-8">
@@ -52,6 +52,170 @@ Align:
 <button onclick="toggleBold()">Bold</button>
 <button onclick="toggleUnderline()">Underline</button>
 
+<br>
+<canvas id="canvas" width="400" height="400"></canvas>
+
+<script>
+window.onload=function(){
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+const textInput=document.getElementById("textInput");
+const fontSelect=document.getElementById("fontSelect");
+const fontSize=document.getElementById("fontSize");
+const textColor=document.getElementById("textColor");
+const bgColor=document.getElementById("bgColor");
+const align=document.getElementById("align");
+const shadowSize=document.getElementById("shadowSize");
+
+let scale=1;
+let bold=false;
+let underline=false;
+let history=[];
+
+function saveState(){
+ history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+ if(history.length>20) history.shift();
+}
+
+window.undo=function(){
+ if(history.length>0){
+  ctx.putImageData(history.pop(),0,0);
+ }
+}
+
+window.toggleBold=function(){bold=!bold;drawText();}
+window.toggleUnderline=function(){underline=!underline;drawText();}
+window.zoomIn=function(){scale+=0.1;drawText();}
+window.zoomOut=function(){scale=Math.max(0.2,scale-0.1);drawText();}
+
+function wrapText(text,x,y,lineHeight){
+ const lines=text.split("\n");
+ lines.forEach((line,i)=>{
+  ctx.fillText(line,x,y+i*lineHeight);
+ });
+}
+
+window.drawText=function(){
+ saveState();
+ ctx.setTransform(1,0,0,1,0,0);
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.scale(scale,scale);
+
+ ctx.fillStyle=bgColor.value;
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ ctx.fillStyle=textColor.value;
+ ctx.shadowColor=textColor.value;
+ ctx.shadowBlur=shadowSize.value;
+
+ ctx.font=(bold?"bold ":"")+fontSize.value+"px "+fontSelect.value;
+ ctx.textAlign=align.value;
+ ctx.textBaseline="top";
+
+ let x=canvas.width/2;
+ if(align.value==="left") x=10;
+ if(align.value==="right") x=canvas.width-10;
+
+ wrapText(textInput.value,x,20,fontSize.value*1.3);
+
+ if(underline){
+  ctx.beginPath();
+  ctx.moveTo(10,20+fontSize.value+5);
+  ctx.lineTo(canvas.width-10,20+fontSize.value+5);
+  ctx.strokeStyle=textColor.value;
+  ctx.stroke();
+ }
+}
+
+window.clearCanvas=function(){
+ saveState();
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+window.saveImage=function(){
+ const a=document.createElement("a");
+ a.href=canvas.toDataURL("image/png");
+ a.download="poster.png";
+ document.body.appendChild(a);
+ a.click();
+ document.body.removeChild(a);
+}
+
+window.shareImage=function(){
+ canvas.toBlob(blob=>{
+  const file=new File([blob],"poster.png",{type:"image/png"});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:"Punjabi Poster"});
+  }else{
+    saveImage();
+    alert("Direct share supported nahi. Image download ho gayi.");
+  }
+ });
+}
+
+window.printImage=function(){
+ const w=window.open("");
+ w.document.write("<img src='"+canvas.toDataURL()+"' style='width:100%'>");
+ w.print();
+ w.close();
+}
+
+}
+</script>
+</body>
+</html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8">
+<title>Punjabi Poster Maker</title>
+<style>
+body{font-family:sans-serif;background:#f2f2ff;text-align:center;}
+h2{background:#673ab7;color:white;padding:10px;border-radius:10px;}
+textarea{width:90%;height:70px;font-size:18px;border-radius:8px;padding:8px;}
+select,input,button{margin:4px;padding:6px;border-radius:6px;}
+button{background:#673ab7;color:white;font-size:14px;}
+canvas{border:2px solid black;margin-top:10px;border-radius:8px;touch-action:none;}
+</style>
+</head>
+<body>
+
+<h2>Punjabi Poster Maker</h2>
+
+<textarea id="textInput" placeholder="ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea><br>
+
+<select id="fontSelect">
+<option value="serif">Serif</option>
+<option value="monospace">Mono</option>
+<option value="cursive">Cursive</option>
+</select>
+
+<input type="color" id="textColor" value="#000000">
+<input type="color" id="bgColor" value="#ffffff"><br>
+
+Size:
+<input type="range" id="fontSize" min="20" max="120" value="40">
+
+Shadow:
+<input type="range" id="shadowSize" min="0" max="20" value="0"><br>
+
+Align:
+<select id="align">
+<option value="left">Left</option>
+<option value="center">Center</option>
+<option value="right">Right</option>
+</select><br>
+
+<button onclick="drawText()">Convert</button>
+<button onclick="undo()">Undo</button>
+<button onclick="clearCanvas()">Delete</button>
+<button onclick="toggleBold()">Bold</button>
+<button onclick="toggleUnderline()">Underline</button>
+<button onclick="saveImage()">Save</button>
+<button onclick="shareImage()">Share</button>
+<button onclick="zoomIn()">Zoom +</button>
+<button onclick="zoomOut()">Zoom -</button>
 <br>
 <canvas id="canvas" width="400" height="400"></canvas>
 
