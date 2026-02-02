@@ -2,15 +2,18 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Punjabi Poster Maker</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi:wght@400;700&display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi&display=swap" rel="stylesheet">
 
 <style>
-@font-face{font-family:"Raavi";src:url("raavi.ttf");}
-@font-face{font-family:"Gurblipi";src:url("Gurblipi.ttf");}
-@font-face{font-family:"Prabhki";src:url("Prabhki.ttf");}
-@font-face{font-family:"Bularah7";src:url("bularah7.ttf");}
+@font-face{font-family:"Raavi";src:url("fonts/Raavi.ttf");}
+@font-face{font-family:"Gurbilipi";src:url("fonts/Gurbilipi.ttf");}
+@font-face{font-family:"Prabhki";src:url("fonts/Prabhki.ttf");}
+@font-face{font-family:"Bularah7";src:url("fonts/Bularah7.ttf");}
 
 body{
   font-family:sans-serif;
@@ -18,30 +21,32 @@ body{
   text-align:center;
   padding:10px;
 }
+
 .controls{
   background:white;
   padding:10px;
   border-radius:10px;
 }
+
 textarea{
-  width:100%;
+  width:95%;
   height:70px;
   font-size:18px;
 }
-select,input,button{
-  margin:4px;
-  padding:6px;
-  border-radius:6px;
-}
-button{
-  background:#6a2ca0;
-  color:white;
-  border:none;
-}
+
 canvas{
   border:2px solid black;
   margin-top:10px;
-  background:white;
+  touch-action: manipulation; /* allow pinch zoom */
+}
+
+button{
+  background:#6a1b9a;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:6px;
+  margin:3px;
 }
 </style>
 </head>
@@ -85,8 +90,22 @@ Align:
 <option value="right">Right</option>
 </select>
 
+  Poster Size:
+<select id="posterSize" onchange="changePosterSize()">
+  <option value="square">Square</option>
+  <option value="story">Story</option>
+  <option value="a4">A4</option>
+</select>
+
 Artwork:
 <select id="artwork">
+  Poster Size:
+<select id="posterSize" onchange="changePosterSize()">
+  <option value="square">Square (1:1)</option>
+  <option value="story">Story (9:16)</option>
+  <option value="a4">A4 (Print)</option>
+</select>
+<br><br>
 <option value="none">None</option>
 <option value="gradient">Gradient</option>
 <option value="pattern">Pattern</option>
@@ -176,7 +195,31 @@ function printImage(){
   win.document.write("<img src='"+dataUrl+"' style='width:100%'>");
   win.print();
 }
+  function changePosterSize(){
+  const canvas = document.getElementById("canvas");
+  const size = document.getElementById("posterSize").value;
+
+  if(size === "square"){
+    canvas.width = 400;
+    canvas.height = 400;
+  }
+
+  if(size === "story"){
+    canvas.width = 360;
+    canvas.height = 640;
+  }
+
+  if(size === "a4"){
+    canvas.width = 794;
+    canvas.height = 1123;
+  }
+
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
 </script>
+  
 
 </body>
 </html>
