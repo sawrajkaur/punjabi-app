@@ -92,22 +92,21 @@ Artwork:
 <option value="pattern">Pattern</option>
 </select><br><br>
 
-<button onclick="drawText()">Convert</button>
-  function clearCanvas(){
+function clearCanvas(){
+  alert("Delete working");
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // optional: background white fill
-  ctx.fillStyle = bgColor.value;
-  ctx.fillRect(0,0,canvas.width,canvas.height);
 }
+function clearCanvas(){
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.<button onclick="drawText()">Convert</button>
+<button onclick="clearCanvas()">Delete</button>
 <button onclick="saveImage()">Save</button>
 <button onclick="shareImage()">Share</button>
 <button onclick="printImage()">Print</button>
-<button onclick="clearCanvas()">Delete</button>
-</div>
 
 <canvas id="canvas" width="400" height="400"></canvas>
+
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -120,64 +119,63 @@ function drawText(){
   const bg = document.getElementById("bgColor").value;
   const borderC = document.getElementById("borderColor").value;
   const borderS = document.getElementById("borderSize").value;
-  const art = document.getElementById("artwork").value;
   const align = document.getElementById("align").value;
 
+  ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // ---- BACKGROUND / ARTWORK ----
-  if(art === "gradient"){
-    const g = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-    g.addColorStop(0, bg);
-    g.addColorStop(1, "#ddd");
-    ctx.fillStyle = g;
-  }else if(art === "pattern"){
-    ctx.fillStyle = bg;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle = "#ccc";
-    for(let i=0;i<canvas.width;i+=20){
-      ctx.beginPath();
-      ctx.moveTo(i,0);
-      ctx.lineTo(i,canvas.height);
-      ctx.stroke();
-    }
-  }else{
-    ctx.fillStyle = bg;
-  }
-
+  ctx.fillStyle = bg;
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // ---- BORDER ----
   if(borderS > 0){
     ctx.strokeStyle = borderC;
     ctx.lineWidth = borderS;
     ctx.strokeRect(0,0,canvas.width,canvas.height);
   }
 
-  // ---- TEXT ----
   ctx.fillStyle = tc;
-  ctx.font = size + "px " + font;
+  ctx.font = size+"px "+font;
   ctx.textAlign = align;
-  ctx.textBaseline = "top";
 
   let x = canvas.width/2;
-  if(align === "left") x = 10;
-  if(align === "right") x = canvas.width-10;
+  if(align=="left") x=10;
+  if(align=="right") x=canvas.width-10;
 
-  let y = 20;
+  let y = 50;
   text.split("\n").forEach(line=>{
     ctx.fillText(line,x,y);
-    y += parseInt(size) + 10;
+    y += parseInt(size)+10;
   });
 }
-</script>function clearCanvas(){
-  alert("Delete working");
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-}
+
 function clearCanvas(){
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function saveImage(){
+  const link = document.createElement("a");
+  link.download = "poster.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+function shareImage(){
+  canvas.toBlob(blob=>{
+    const file = new File([blob],"poster.png",{type:"image/png"});
+    navigator.share({
+      files:[file],
+      title:"Poster"
+    });
+  });
+}
+
+function printImage(){
+  const win = window.open("");
+  win.document.write("<img src='"+canvas.toDataURL()+"'>");
+  win.print();
+}
+</script>height);
 }
   const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
