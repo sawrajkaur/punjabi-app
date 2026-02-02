@@ -131,8 +131,8 @@ function drawText(){
   ctx.textAlign = align;
 
   let x = canvas.width/2;
-  if(align=="left") x=10;
-  if(align=="right") x=canvas.width-10;
+  if(align=="left") x = 10;
+  if(align=="right") x = canvas.width-10;
 
   let y = 50;
   text.split("\n").forEach(line=>{
@@ -145,33 +145,7 @@ function clearCanvas(){
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
 }
-function saveImage(){
-  const link = document.createElement("a");
-  link.download = "poster.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-}
 
-function shareImage(){
-  canvas.toBlob(blob=>{
-    const file = new File([blob],"poster.png",{type:"image/png"});
-    navigator.share({
-      files:[file],
-      title:"Poster"
-    });
-  });
-}
-
-function printImage(){
-  const win = window.open("");
-  win.document.write("<img src='"+canvas.toDataURL()+"'>");
-  win.print();
-}
-</script>height);
-}
-  const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-<script>
 function saveImage(){
   const link = document.createElement("a");
   link.download = "punjabi-poster.png";
@@ -181,7 +155,7 @@ function saveImage(){
 
 function shareImage(){
   canvas.toBlob(function(blob){
-    const file = new File([blob], "poster.png", {type:"image/png"});
+    const file = new File([blob],"poster.png",{type:"image/png"});
     if(navigator.share){
       navigator.share({
         files:[file],
