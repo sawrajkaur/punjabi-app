@@ -144,15 +144,15 @@ let underline=false;
 let history=[];
 let drawMode=false;
 let drawing=false;
-
-function saveState(){history.push(canvas.toDataURL());}
-
+document.getElementById("textInput").addEventListener("input", drawText);
+document.getElementById("fontSelect").addEventListener("change", drawText);
+document.getElementById("textColor").addEventListener("input", drawText);
+document.getElementById("bgColor").addEventListener("input", drawText);
+function saveState(){history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
 function undo(){
  if(history.length>0){
-  let img=new Image();
-  img.src=history.pop();
-  img.onload=()=>ctx.drawImage(img,0,0);
- }
+  const imgData = history.pop();
+ctx.putImageData(imgData,0,0);
 }
 
 function toggleBold(){bold=!bold;}
@@ -180,21 +180,55 @@ function wrapText(text,x,y,lineHeight){
   ctx.fillText(line,x,y+i*lineHeight);
  });
 }
-
 function drawText(){
- saveState();
- const text=textInput.value;
- const font=fontSelect.value;
- const size=fontSize.value;
- const tc=textColor.value;
- const bg=bgColor.value;
- const borderC=borderColor.value;
- const borderS=borderSize.value;
- const art=wordArt.value;
- const shadow=shadowSize.value;
- const align=document.getElementById("align").value;
+  saveState();
 
- ctx.setTransform(scale,0,0,scale,0,0);
+  const text = textInput.value;
+  const font = fontSelect.value;
+  const size = fontSize.value;
+  const tc = textColor.value;
+  const bg = bgColor.value;
+  const borderC = borderColor.value;
+  const borderS = borderSize.value;
+  const art = wordArt.value;
+  const shadow = shadowSize.value;
+  const align = document.getElementById("align").value;
+
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.scale(scale, scale);
+
+  // background
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // border
+  if(borderS > 0){
+    ctx.strokeStyle = borderC;
+    ctx.lineWidth = borderS;
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+  }
+
+  // shadow
+  ctx.shadowColor = tc;
+  ctx.shadowBlur = shadow;
+
+  // font
+  ctx.fillStyle = tc;
+  ctx.font = `${bold ? "bold" : ""} ${size}px ${font}`;
+  ctx.textAlign = align;
+  ctx.textBaseline = "middle";
+
+  let x = canvas.width/2;
+  if(align==="left") x = 20;
+  if(align==="right") x = canvas.width-20;
+
+  wrapText(text, x, canvas.height/2, size*1.3);
+}
+
+ ctx.setTransform(1,0,0,1,0,0);
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.scale(scale, scale);
  ctx.fillStyle=bg;
  ctx.fillRect(0,0,canvas.width,canvas.height);
 
@@ -242,16 +276,23 @@ function drawText(){
 
 function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);}
 function saveImage(){
- const a=document.createElement("a");
- a.download="punjabi.png";
- a.href=canvas.toDataURL();
- a.click();
+  const link = document.createElement("a");
+  link.download = "poster.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }
 function shareImage(){
- canvas.toBlob(blob=>{
-  const file=new File([blob],"punjabi.png",{type:"image/png"});
-  navigator.share({files:[file]});
- });
+  canvas.toBlob(blob=>{
+    const file = new File([blob],"poster.png",{type:"image/png"});
+    if(navigator.share){
+      navigator.share({
+        files:[file],
+        title:"Punjabi Poster"
+      });
+    }else{
+      alert("Share not supported");
+    }
+  });
 }
 function printImage(){
  const w=window.open("");
