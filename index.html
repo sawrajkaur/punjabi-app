@@ -102,63 +102,35 @@ ctx.stroke();
 canvas.addEventListener("pointerup",()=>drawing=false);
 
 function drawText(){
-saveState();
-ctx.setTransform(1,0,0,1,0,0);
-ctx.clearRect(0,0,canvas.width,canvas.height);
-ctx.scale(scale,scale);
+  const text = document.getElementById("textInput").value;
+  const font = document.getElementById("fontSelect").value;
+  const size = document.getElementById("fontSize").value;
+  const tc = document.getElementById("textColor").value;
+  const bg = document.getElementById("bgColor").value;
+  const align = document.getElementById("align").value;
 
-const text=textInput.value;
-const font=fontSelect.value;
-const size=fontSize.value;
-const tc=textColor.value;
-const bg=bgColor.value;
-const shadow=shadowSize.value;
-const align=alignSelect.value;
-const border=borderSize.value;
-const borderC=borderColor.value;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.scale(scale,scale);
 
-ctx.fillStyle=bg;
-ctx.fillRect(0,0,canvas.width,canvas.height);
+  // background
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-if(border>0){
-ctx.strokeStyle=borderC;
-ctx.lineWidth=border;
-ctx.strokeRect(0,0,canvas.width,canvas.height);
+  // text
+  ctx.fillStyle = tc;
+  ctx.font = size + "px " + font;
+  ctx.textAlign = align;
+  ctx.textBaseline = "top";
+
+  const lines = text.split("\n");
+  let y = 20;
+  lines.forEach(line=>{
+    ctx.fillText(line, canvas.width/2, y);
+    y += size + 10;
+  });
 }
-
-ctx.shadowColor="black";
-ctx.shadowBlur=shadow;
-
-ctx.textAlign=align;
-ctx.textBaseline="top";
-
-let style="";
-if(bold) style+="bold ";
-style+=size+"px "+font;
-ctx.font=style;
-
-ctx.fillStyle=tc;
-
-let x=canvas.width/2;
-if(align=="left") x=10;
-if(align=="right") x=canvas.width-10;
-
-let lines=text.split("\n");
-let y=20;
-lines.forEach(line=>{
-ctx.fillText(line,x,y);
-if(underline){
-let w=ctx.measureText(line).width;
-ctx.fillRect(x-w/2,y+size+2,w,2);
-}
-y+=size+10;
-});
-}
-
-function clearCanvas(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
+a.width,canvas.height);
 function saveImage(){
 const a=document.createElement("a");
 a.download="poster.png";
