@@ -2,100 +2,55 @@
 <html lang="pa">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Punjabi Calligraphy Poster Maker</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Gurmukhi&family=Noto+Sans+Gurmukhi&family=Baloo+Paaji+2&family=Mukta+Mahee&family=Langar&family=Tiro+Gurmukhi&family=Anek+Gurmukhi&family=Changa&display=swap" rel="stylesheet">
-
 <style>
-@font-face { font-family:"Raavi"; src:url("raavi.ttf"); }
-@font-face { font-family:"AnmolLipi"; src:url("AnmolLipi.ttf"); }
-@font-face { font-family:"Prabhki"; src:url("Prabhki.ttf"); }
-
 body{
-  margin:0;
-  font-family:sans-serif;
-  background:linear-gradient(#efe6ff,#ffffff);
-  text-align:center;
+ font-family:sans-serif;
+ background:linear-gradient(#efe6ff,#ffffff);
+ text-align:center;
 }
-header{
-  background:#5b2ca0;
-  color:white;
-  padding:12px;
-  font-size:22px;
-}
+h2{background:#5e2ca5;color:white;padding:10px;border-radius:10px;}
 textarea{
-  width:90%;
-  margin:8px;
-  padding:10px;
-  font-size:18px;
-  border-radius:10px;
-  border:2px solid #5b2ca0;
+ width:90%;
+ height:80px;
+ font-size:20px;
+ border-radius:10px;
+ padding:10px;
 }
-.controls{
-  background:white;
-  margin:8px;
-  padding:10px;
-  border-radius:15px;
+select,input,button{
+ margin:5px;
+ padding:8px;
+ border-radius:8px;
 }
-select,button,input{
-  margin:4px;
-  padding:6px 10px;
-  border-radius:8px;
-}
-button{background:#5b2ca0;color:white;}
+button{background:#5e2ca5;color:white;font-size:16px;}
 canvas{
-  border:4px solid black;
-  margin:10px auto;
-  display:block;
-  background:white;
-  touch-action:none;
+ border:3px solid black;
+ margin-top:10px;
+ border-radius:10px;
+ touch-action:none;
 }
 </style>
 </head>
 
 <body>
-<header>Punjabi Calligraphy Poster Maker</header>
+<h2>Punjabi Calligraphy Poster Maker</h2>
 
-<textarea id="textInput" placeholder="ਇੱਥੇ ਪੰਜਾਬੀ ਲਿਖੋ (multiple lines allowed)"></textarea>
-
-<div class="controls">
-
-<button onclick="drawText()">Convert</button>
-<button onclick="undo()">Undo</button>
-<button onclick="clearCanvas()">Delete</button>
-<button onclick="saveImage()">Save</button>
-<button onclick="shareImage()">Share</button>
-<button onclick="printImage()">Print</button>
-
-<br><br>
+<textarea id="textInput" placeholder="ਪੰਜਾਬੀ ਲਿਖੋ..."></textarea><br>
 
 <select id="fontSelect">
 <option value="Noto Serif Gurmukhi">Noto Serif</option>
-<option value="Noto Sans Gurmukhi">Noto Sans</option>
-<option value="Baloo Paaji 2">Baloo</option>
-<option value="Mukta Mahee">Mukta</option>
-<option value="Langar">Langar</option>
-<option value="Tiro Gurmukhi">Tiro</option>
-<option value="Anek Gurmukhi">Anek</option>
-<option value="Changa">Changa</option>
-<option value="Raavi">Raavi</option>
-<option value="AnmolLipi">Anmol</option>
-<option value="Prabhki">Prabhki</option>
+<option value="serif">Serif</option>
+<option value="monospace">Mono</option>
 </select>
 
 <input type="color" id="textColor" value="#000000">
-<input type="color" id="bgColor" value="#ffffff">
-
-<br>
+<input type="color" id="bgColor" value="#ffffff"><br>
 
 Font Size:
-<input type="range" id="fontSize" min="10" max="200" value="60">
+<input type="range" id="fontSize" min="20" max="120" value="40">
 
 Shadow:
-<input type="range" id="shadowSize" min="0" max="40" value="0">
-
-<br>
+<input type="range" id="shadowSize" min="0" max="20" value="0"><br>
 
 Align:
 <select id="align">
@@ -104,81 +59,88 @@ Align:
 <option value="right">Right</option>
 </select>
 
-Word Art:
-<select id="wordArt">
-<option value="normal">Normal</option>
-<option value="shadow">Shadow</option>
-<option value="outline">Outline</option>
-<option value="glow">Glow</option>
-<option value="gradient">Gradient</option>
-<option value="curve">Curve</option>
-</select>
+Frame:
+<select id="frameSelect">
+<option value="none">None</option>
+<option value="single">Single</option>
+<option value="double">Double</option>
+</select><br>
 
-<br>
+Border Color:
+<input type="color" id="borderColor" value="#000000">
+Border Size:
+<input type="range" id="borderSize" min="0" max="20" value="0"><br>
 
+Sticker:
+<select id="sticker">
+<option value="">None</option>
+<option value="🌸">🌸</option>
+<option value="⭐">⭐</option>
+<option value="❤️">❤️</option>
+</select><br>
+
+<button onclick="drawText()">Convert</button>
+<button onclick="undo()">Undo</button>
+<button onclick="clearCanvas()">Delete</button>
+<button onclick="saveImage()">Save</button>
+<button onclick="shareImage()">Share</button>
+<button onclick="printImage()">Print</button><br>
+
+<button onclick="zoomIn()">Zoom +</button>
+<button onclick="zoomOut()">Zoom -</button>
+<button onclick="toggleDraw()">Hand Work ✍</button>
 <button onclick="toggleBold()">Bold</button>
 <button onclick="toggleUnderline()">Underline</button>
 
 <br>
-
-Border Color <input type="color" id="borderColor" value="#000000">
-Border Size <input type="range" id="borderSize" min="0" max="20" value="4">
-
-<br><br>
-
-<button onclick="zoomIn()">Zoom +</button>
-<button onclick="zoomOut()">Zoom -</button>
-<button onclick="toggleDraw()">Hand Work ✍️</button>
-
-</div>
-
-<canvas id="canvas" width="350" height="350"></canvas>
+<canvas id="canvas" width="400" height="400"></canvas>
 
 <script>
-window.onload = function(){
+window.onload=function(){
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-const textInput = document.getElementById("textInput");
-const fontSelect = document.getElementById("fontSelect");
-const fontSize = document.getElementById("fontSize");
-const textColor = document.getElementById("textColor");
-const bgColor = document.getElementById("bgColor");
-const borderColor = document.getElementById("borderColor");
-const borderSize = document.getElementById("borderSize");
-const wordArt = document.getElementById("wordArt");
-const align = document.getElementById("align");
-const shadowSize = document.getElementById("shadowSize");
+const textInput=document.getElementById("textInput");
+const fontSelect=document.getElementById("fontSelect");
+const fontSize=document.getElementById("fontSize");
+const textColor=document.getElementById("textColor");
+const bgColor=document.getElementById("bgColor");
+const borderColor=document.getElementById("borderColor");
+const borderSize=document.getElementById("borderSize");
+const align=document.getElementById("align");
+const shadowSize=document.getElementById("shadowSize");
+const frameSelect=document.getElementById("frameSelect");
+const sticker=document.getElementById("sticker");
 
-let scale = 1;
-let bold = false;
-let underline = false;
-let history = [];
-let drawMode = false;
-let drawing = false;
+let scale=1;
+let bold=false;
+let underline=false;
+let drawMode=false;
+let drawing=false;
+let history=[];
 
 function saveState(){
-  history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
-}
-window.undo = function(){
-  if(history.length>0){
-    ctx.putImageData(history.pop(),0,0);
-  }
+ history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+ if(history.length>20) history.shift();
 }
 
-window.toggleBold = function(){ bold=!bold; drawText(); }
-window.toggleUnderline = function(){ underline=!underline; drawText(); }
+window.undo=function(){
+ if(history.length>0){
+  ctx.putImageData(history.pop(),0,0);
+ }
+}
 
-window.zoomIn = function(){ scale+=0.1; drawText(); }
-window.zoomOut = function(){ scale=Math.max(0.2,scale-0.1); drawText(); }
+window.toggleBold=function(){bold=!bold;drawText();}
+window.toggleUnderline=function(){underline=!underline;drawText();}
+window.zoomIn=function(){scale+=0.1;drawText();}
+window.zoomOut=function(){scale=Math.max(0.2,scale-0.1);drawText();}
+window.toggleDraw=function(){drawMode=!drawMode;}
 
-window.toggleDraw = function(){ drawMode=!drawMode; }
-
-canvas.addEventListener("pointerdown", e=>{
- if(drawMode){ drawing=true; ctx.beginPath(); ctx.moveTo(e.offsetX,e.offsetY);}
+canvas.addEventListener("pointerdown",e=>{
+ if(drawMode){drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);}
 });
-canvas.addEventListener("pointermove", e=>{
+canvas.addEventListener("pointermove",e=>{
  if(drawMode && drawing){
   ctx.lineTo(e.offsetX,e.offsetY);
   ctx.strokeStyle=textColor.value;
@@ -186,7 +148,7 @@ canvas.addEventListener("pointermove", e=>{
   ctx.stroke();
  }
 });
-canvas.addEventListener("pointerup", ()=>drawing=false);
+canvas.addEventListener("pointerup",()=>drawing=false);
 
 function wrapText(text,x,y,lineHeight){
  const lines=text.split("\n");
@@ -195,7 +157,7 @@ function wrapText(text,x,y,lineHeight){
  });
 }
 
-window.drawText = function(){
+window.drawText=function(){
  saveState();
  ctx.setTransform(1,0,0,1,0,0);
  ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -204,52 +166,70 @@ window.drawText = function(){
  ctx.fillStyle=bgColor.value;
  ctx.fillRect(0,0,canvas.width,canvas.height);
 
- if(borderSize.value>0){
+ if(frameSelect.value==="single"){
   ctx.strokeStyle=borderColor.value;
   ctx.lineWidth=borderSize.value;
   ctx.strokeRect(0,0,canvas.width,canvas.height);
  }
+ if(frameSelect.value==="double"){
+  ctx.strokeStyle=borderColor.value;
+  ctx.lineWidth=borderSize.value;
+  ctx.strokeRect(0,0,canvas.width,canvas.height);
+  ctx.strokeRect(10,10,canvas.width-20,canvas.height-20);
+ }
 
  ctx.fillStyle=textColor.value;
- ctx.font = (bold?"bold ":"")+fontSize.value+"px "+fontSelect.value;
- ctx.textAlign=align.value;
- ctx.textBaseline="top";
-
  ctx.shadowColor=textColor.value;
  ctx.shadowBlur=shadowSize.value;
 
- let x=canvas.width/2;
- if(align.value=="left") x=10;
- if(align.value=="right") x=canvas.width-10;
+ ctx.font=(bold?"bold ":"")+fontSize.value+"px "+fontSelect.value;
+ ctx.textAlign=align.value;
+ ctx.textBaseline="top";
 
- let y=20;
- wrapText(textInput.value,x,y,fontSize.value*1.3);
+ let x=canvas.width/2;
+ if(align.value==="left") x=10;
+ if(align.value==="right") x=canvas.width-10;
+
+ wrapText(textInput.value,x,20,fontSize.value*1.3);
 
  if(underline){
   ctx.beginPath();
-  ctx.moveTo(20,y+fontSize.value+5);
-  ctx.lineTo(canvas.width-20,y+fontSize.value+5);
+  ctx.moveTo(20,20+fontSize.value+5);
+  ctx.lineTo(canvas.width-20,20+fontSize.value+5);
   ctx.strokeStyle=textColor.value;
   ctx.stroke();
  }
+
+ if(sticker.value!==""){
+  ctx.font="40px serif";
+  ctx.fillText(sticker.value,canvas.width-50,canvas.height-50);
+ }
 }
 
-window.clearCanvas = function(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+window.clearCanvas=function(){
+ saveState();
+ ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-window.saveImage = function(){
+window.saveImage=function(){
  const link=document.createElement("a");
- link.download="punjabi-poster.png";
+ link.download="poster.png";
  link.href=canvas.toDataURL();
  link.click();
 }
 
-window.shareImage = function(){
+window.shareImage=function(){
  canvas.toBlob(blob=>{
   const file=new File([blob],"poster.png",{type:"image/png"});
   navigator.share({files:[file],title:"Punjabi Poster"});
  });
+}
+
+window.printImage=function(){
+ const w=window.open("");
+ w.document.write("<img src='"+canvas.toDataURL()+"'>");
+ w.print();
+ w.close();
 }
 
 }
